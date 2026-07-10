@@ -1,0 +1,29 @@
+{
+  "disabledSkills": [],
+  "builtinSkillStatus": {
+    "TRAE-dynamic-ui": false
+  },
+  "managedSkills": {
+    "byted-bp-cdn-pagesdeploy": "marketplace",
+    "douyin-interact-creation": "marketplace",
+    "mcp-builder": "marketplace",
+    "composition-patterns": "marketplace",
+    "frontend-design": "marketplace",
+    "iga-pages": "marketplace",
+    "alipay-payment-integration": "marketplace",
+    "git-commit": "marketplace",
+    "writing-plans": "marketplace",
+    "doc-coauthoring": "marketplace",
+    "webapp-testing": "marketplace",
+    "web-artifacts-builder": "marketplace",
+    "douyinpay-payment-integration": "marketplace",
+    "react-native-skills": "marketplace",
+    "theme-factory": "marketplace",
+    "redis-development": "marketplace",
+    "gh-cli": "marketplace",
+    "react-best-practices": "marketplace",
+    "test-driven-development": "marketplace",
+    "douyin-interactive-content-publish": "marketplace",
+    "security-best-practices": "marketplace"
+  }
+}

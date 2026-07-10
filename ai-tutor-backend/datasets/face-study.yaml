@@ -1,4 +1,4 @@
-path: ./datasets/face-study
+path: ./face-study
 train: images/train
 val: images/val
 

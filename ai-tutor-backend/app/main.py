@@ -2,6 +2,15 @@
 AI 学习助手 - FastAPI 后端入口
 """
 
+import os
+import traceback
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+_proxy_vars = ["HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "ALL_PROXY", "all_proxy"]
+for _var in _proxy_vars:
+    os.environ.pop(_var, None)
+
 import uvicorn
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -27,6 +36,20 @@ app = FastAPI(
     version=app_settings.APP_VERSION,
     lifespan=lifespan,
 )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """全局异常处理器，返回详细错误信息"""
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": str(exc),
+            "type": exc.__class__.__name__,
+            "traceback": traceback.format_exc(),
+        },
+    )
+
 
 # CORS 配置
 app.add_middleware(

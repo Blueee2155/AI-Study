@@ -1,8 +1,11 @@
 import type { Message } from '@/types';
 import { marked } from 'marked';
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { Sparkle, User } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
+import katex from 'katex';
+import renderMathInElement from 'katex/contrib/auto-render';
+import 'katex/dist/katex.min.css';
 
 marked.setOptions({
   breaks: true,
@@ -16,11 +19,97 @@ interface Props {
 export default function MessageBubble({ message }: Props) {
   const isUser = message.role === 'user';
   const isStreaming = message.id === 'streaming';
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const htmlContent = useMemo(() => {
     if (isUser) return null;
-    return message.content ? (marked.parse(message.content) as string) : '';
+    if (!message.content) return '';
+
+    let content = message.content;
+
+    // 0. 将 [...] 格式的块级公式转换为 $$...$$ 格式
+    //    AI模型使用 [ 和 ] 作为块级公式分隔符（LaTeX惯例），可能跨多行：
+    //    a) 多行: \n[\n...latex...\n]\n  (最常见)
+    //    b) 单行: \n[...latex...]\n
+    //    使用 (^|\n) 和 (\n|$) 确保匹配各种位置（开头/结尾/中间）
+    const bracketBlockRe = new RegExp('(^|\\n)\\[\\n([\\s\\S]*?)\\n\\]($|\\n)', 'g');
+    content = content.replace(bracketBlockRe, (_match, pre, latex, post) => {
+      return `${pre}$$${latex.trim()}$$${post}`;
+    });
+    // 单行形式: [...latex...] （需包含LaTeX命令才转换，避免误匹配普通方括号）
+    const bracketSingleRe = new RegExp('(^|\\n)\\[([\\s\\S]*?)\\]($|\\n)', 'g');
+    content = content.replace(bracketSingleRe, (_match, pre, latex, post) => {
+      if (latex.includes('\\') && !latex.includes('$$')) {
+        return `${pre}$$${latex.trim()}$$${post}`;
+      }
+      return _match;
+    });
+
+    // 1. 保护并直接渲染块级公式 $$...$$ 为 KaTeX HTML
+    //    避免 marked 的 breaks:true 在公式内插入 <br> 导致 renderMathInElement 无法匹配分隔符
+    const blockFormulas: string[] = [];
+    content = content.replace(/\$\$([\s\S]*?)\$\$/g, (_match, formula) => {
+      const idx = blockFormulas.length;
+      try {
+        const rendered = katex.renderToString(formula.trim(), {
+          displayMode: true,
+          throwOnError: false,
+        });
+        blockFormulas.push(rendered);
+      } catch {
+        blockFormulas.push(_match); // 渲染失败时保留原文
+      }
+      return `\n\nKATEXBLOCKPH${idx}END\n\n`;
+    });
+
+    // 2. 保护行内公式 $...$（单行、不含空格开头/结尾）
+    const inlineFormulas: string[] = [];
+    content = content.replace(/(?<!\$)\$(?!\$)((?:[^$\\]|\\.)+)\$(?!\$)/g, (_match, formula) => {
+      const idx = inlineFormulas.length;
+      try {
+        const rendered = katex.renderToString(formula.trim(), {
+          displayMode: false,
+          throwOnError: false,
+        });
+        inlineFormulas.push(rendered);
+      } catch {
+        inlineFormulas.push(_match);
+      }
+      return `KATEXINLINEPH${idx}END`;
+    });
+
+    // 3. 解析 markdown
+    let html = marked.parse(content) as string;
+
+    // 4. 还原块级和行内公式占位符
+    blockFormulas.forEach((rendered, i) => {
+      html = html.replace(`KATEXBLOCKPH${i}END`, rendered);
+    });
+    inlineFormulas.forEach((rendered, i) => {
+      html = html.replace(`KATEXINLINEPH${i}END`, rendered);
+    });
+
+    return html;
   }, [message.content, isUser]);
+
+  // Render math formulas with KaTeX after DOM updates
+  useEffect(() => {
+    if (isUser || !contentRef.current) return;
+
+    try {
+      renderMathInElement(contentRef.current, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$', right: '$', display: false },
+          { left: '\\(', right: '\\)', display: false },
+          { left: '\\[', right: '\\]', display: true },
+        ],
+        throwOnError: false,
+      });
+    } catch (e) {
+      console.error('KaTeX rendering error:', e);
+    }
+  }, [htmlContent, isUser]);
 
   return (
     <motion.div
@@ -48,7 +137,8 @@ export default function MessageBubble({ message }: Props) {
           </p>
         ) : (
           <div
-            className={`text-sm leading-relaxed markdown-content ${isStreaming ? 'after:content-[\"▊\"] after:ml-0.5 after:text-emerald-500 after:animate-pulse' : ''}`}
+            ref={contentRef}
+            className={`text-sm leading-relaxed markdown-content ${isStreaming ? 'after:content-[""] after:ml-0.5 after:text-emerald-500 after:animate-pulse' : ''}`}
             dangerouslySetInnerHTML={{ __html: htmlContent || '' }}
           />
         )}

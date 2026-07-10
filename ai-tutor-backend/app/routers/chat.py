@@ -68,10 +68,8 @@ async def send_message(
         ]
 
     # 生成回答
-    reply = await generate_answer_stream(data.question, data.subject, history)
-
     full_reply = ""
-    async for chunk in reply:
+    async for chunk in generate_answer_stream(data.question, data.subject, history):
         full_reply += chunk
 
     # 保存助手回复
@@ -128,8 +126,7 @@ async def stream_chat(
         """SSE 事件生成器"""
         try:
             full_reply = ""
-            stream = generate_answer_stream(data.question, data.subject, history)
-            async for chunk in stream:
+            async for chunk in generate_answer_stream(data.question, data.subject, history):
                 full_reply += chunk
                 yield {
                     "event": "message",

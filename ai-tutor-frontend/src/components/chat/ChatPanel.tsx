@@ -43,8 +43,14 @@ export default function ChatPanel() {
     if (!activeSessionId) return;
     setError(null);
     getMessages(activeSessionId)
-      .then(setMessages)
-      .catch(() => setError('加载消息失败'));
+      .then((msgs) => {
+        if (msgs.length > 0) {
+          setMessages(msgs);
+        }
+      })
+      .catch(() => {
+        // 静默处理，不显示错误提示
+      });
   }, [activeSessionId, setMessages]);
 
   // Auto scroll to bottom
@@ -93,17 +99,25 @@ export default function ChatPanel() {
     try {
       const reader = await sendMessageStream(sid, content.trim(), subject);
       const decoder = new TextDecoder();
+      // SSE 行缓冲区：处理 chunk 边界切割 data: 行的情况
+      let sseBuffer = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+        // 将缓冲区中的残留数据与新 chunk 拼接
+        const text = sseBuffer + chunk;
+        const lines = text.split('\n');
+
+        // 最后一项可能是未完成的行，保留到下次处理
+        sseBuffer = lines.pop() || '';
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
+          const trimmed = line.trim();
+          if (trimmed.startsWith('data: ')) {
+            const data = trimmed.slice(6);
             if (data === '[DONE]') continue;
             try {
               const parsed = JSON.parse(data);
@@ -116,18 +130,31 @@ export default function ChatPanel() {
                 setError(parsed.content);
               }
             } catch {
-              fullText += data;
+              // JSON 不完整或格式异常，跳过该行（不再累加到 fullText）
+              console.warn('[SSE] Failed to parse:', data);
+            }
+          }
+        }
+      }
+
+      // 处理缓冲区中剩余的数据
+      if (sseBuffer.trim().startsWith('data: ')) {
+        const data = sseBuffer.trim().slice(6);
+        if (data !== '[DONE]') {
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.type === 'text') {
+              fullText += parsed.content;
               setStreamingText(fullText);
             }
+          } catch {
+            // ignore
           }
         }
       }
     } catch (e: any) {
       setError(e.message || '消息发送失败，请重试');
     } finally {
-      setStreaming(false);
-      setStreamingText('');
-
       if (fullText) {
         const aiMsg: Message = {
           id: (Date.now() + 1).toString(),
@@ -137,6 +164,8 @@ export default function ChatPanel() {
         };
         addMessage(aiMsg);
       }
+      setStreaming(false);
+      setStreamingText('');
     }
   };
 

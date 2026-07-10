@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI学习助手 - Agent 工作流设计图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    background: #f0f4f8;
+    padding: 40px 20px;
+    color: #1e293b;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: #0f172a; }
+  .subtitle { text-align: center; color: #64748b; margin-bottom: 40px; font-size: 14px; }
+
+  .workflow-container {
+    background: #fff;
+    border-radius: 16px;
+    padding: 48px 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+
+  /* Agent 循环核心 */
+  .agent-loop {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+  }
+  .agent-stage {
+    width: 240px;
+    border-radius: 12px;
+    padding: 24px 20px;
+    text-align: center;
+    position: relative;
+    border: 3px solid;
+  }
+  .stage-perception { border-color: #3b82f6; background: #eff6ff; }
+  .stage-planning { border-color: #f59e0b; background: #fffbeb; }
+  .stage-action { border-color: #10b981; background: #ecfdf5; }
+
+  .stage-icon { font-size: 36px; margin-bottom: 8px; }
+  .stage-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .stage-en { font-size: 12px; color: #64748b; margin-bottom: 12px; }
+  .stage-perception .stage-title { color: #1d4ed8; }
+  .stage-planning .stage-title { color: #b45309; }
+  .stage-action .stage-title { color: #047857; }
+
+  .stage-items { text-align: left; }
+  .stage-item {
+    font-size: 12px;
+    padding: 4px 8px;
+    margin: 4px 0;
+    background: rgba(255,255,255,0.7);
+    border-radius: 4px;
+    line-height: 1.5;
+  }
+
+  .arrow-h {
+    font-size: 28px;
+    color: #94a3b8;
+    padding: 0 8px;
+  }
+
+  .loop-back {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #64748b;
+  }
+  .loop-back span {
+    background: #f1f5f9;
+    padding: 4px 16px;
+    border-radius: 20px;
+    border: 1px solid #cbd5e1;
+  }
+
+  /* 工作流详情区 */
+  .workflows {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 900px) {
+    .workflows { grid-template-columns: 1fr; }
+  }
+
+  .workflow-card {
+    border-radius: 12px;
+    padding: 24px;
+    border: 2px solid;
+  }
+  .wf-vision { border-color: #3b82f6; background: #f8fafc; }
+  .wf-chat { border-color: #10b981; background: #f8fafc; }
+
+  .wf-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px dashed #cbd5e1;
+  }
+  .wf-icon { font-size: 28px; }
+  .wf-title { font-size: 18px; font-weight: 700; }
+  .wf-vision .wf-title { color: #1d4ed8; }
+  .wf-chat .wf-title { color: #047857; }
+
+  .wf-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .wf-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    position: relative;
+  }
+  .step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .wf-vision .step-number { background: #3b82f6; }
+  .wf-chat .step-number { background: #10b981; }
+
+  .step-content {
+    flex: 1;
+    padding-top: 4px;
+  }
+  .step-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .step-detail {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.6;
+  }
+  .step-code {
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  .step-arrow {
+    position: absolute;
+    left: 15px;
+    top: 44px;
+    width: 2px;
+    height: calc(100% - 12px);
+    background: #cbd5e1;
+  }
+  .wf-step:last-child .step-arrow { display: none; }
+
+  /* 决策表 */
+  .decision-table {
+    margin-top: 40px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .decision-table h3 {
+    background: #1e293b;
+    color: #fff;
+    padding: 16px 24px;
+    font-size: 16px;
+  }
+  .decision-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+  }
+  .decision-table th {
+    background: #f1f5f9;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    border-bottom: 2px solid #cbd5e1;
+  }
+  .decision-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .status-focus { background: #d1fae5; color: #065f46; }
+  .status-distract { background: #fee2e2; color: #991b1b; }
+  .status-away { background: #fef3c7; color: #92400e; }
+  .status-leave { background: #e0e7ff; color: #3730a3; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>AI 学习助手 — Agent 工作流设计图</h1>
+  <p class="subtitle">大模型感知-规划-行动循环 | 视觉监督 Agent + 问答 Agent 双工作流</p>
+
+  <div class="workflow-container">
+
+    <!-- Agent 核心循环 -->
+    <h3 style="text-align:center; margin-bottom:24px; font-size:18px; color:#0f172a;">Agent 核心循环 (Perception-Planning-Action)</h3>
+
+    <div class="agent-loop">
+      <div class="agent-stage stage-perception">
+        <div class="stage-icon">👁️</div>
+        <div class="stage-title">感 知</div>
+        <div class="stage-en">Perception</div>
+        <div class="stage-items">
+          <div class="stage-item">📷 摄像头帧采集 (500ms)</div>
+          <div class="stage-item">🔍 OpenCV 人脸检测</div>
+          <div class="stage-item">🧠 YOLOv8 状态分类</div>
+          <div class="stage-item">⏱️ 学习计时器状态</div>
+          <div class="stage-item">📝 用户文本输入</div>
+        </div>
+      </div>
+
+      <div class="arrow-h">→</div>
+
+      <div class="agent-stage stage-planning">
+        <div class="stage-icon">🧩</div>
+        <div class="stage-title">规 划</div>
+        <div class="stage-en">Planning</div>
+        <div class="stage-items">
+          <div class="stage-item">📐 人脸中心偏移计算</div>
+          <div class="stage-item">📊 面积占比 & 宽高比</div>
+          <div class="stage-item">🎯 状态判定规则引擎</div>
+          <div class="stage-item">⏰ 25分钟提醒决策</div>
+          <div class="stage-item">📚 RAG 知识检索策略</div>
+        </div>
+      </div>
+
+      <div class="arrow-h">→</div>
+
+      <div class="agent-stage stage-action">
+        <div class="stage-icon">⚡</div>
+        <div class="stage-title">行 动</div>
+        <div class="stage-en">Action</div>
+        <div class="stage-items">
+          <div class="stage-item">🔊 Web Speech 语音提醒</div>
+          <div class="stage-item">🦉 宠物动画切换</div>
+          <div class="stage-item">🖼️ Canvas 人脸框绘制</div>
+          <div class="stage-item">🤖 DeepSeek 流式问答</div>
+          <div class="stage-item">💾 对话历史持久化</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="loop-back">
+      <span>↻ 循环回到感知层 (每 500ms 下一周期)</span>
+    </div>
+
+    <!-- 两条工作流 -->
+    <div class="workflows">
+
+      <!-- 视觉监督工作流 -->
+      <div class="workflow-card wf-vision">
+        <div class="wf-header">
+          <span class="wf-icon">👁️</span>
+          <span class="wf-title">工作流 A：视觉学习监督</span>
+        </div>
+        <div class="wf-steps">
+          <div class="wf-step">
+            <div class="step-number">1</div>
+            <div class="step-arrow"></div>
+            <div class="step-content">
+              <div class="step-title">摄像头帧采集</div>
+              <div class="step-detail">前端 getUserMedia 获取视频流，Canvas 截帧压缩为 416px JPEG，Base64 编码</div>
+            </div>
+          </div>
+          <div class="wf-step">
+            <div class="step-number">2</div>
+            <div class="step-arrow"></div>
+            <div class="step-content">
+              <div class="step-title">后端图像解码 + 预处理</div>
+              <div class="step-detail">cv2.imdecode 解码 → BGR 转灰度 → equalizeHist 直方图均衡化 → CLAHE 自适应对比度增强</div>
+            </div>
+          </div>
+          <div class="wf-step">
+            <div class="step-number">3</div>
+            <div class="step-arrow"></div>
+            <div class="step-content">
+              <div class="step-title">多分类器人脸检测</div>
+              <div class="step-detail">加载 4 个 Haar Cascade 分类器 (default/alt2/alt/alt_tree)，多尺度检测 (scaleFactor 1.03~1.05)，IoU 合并重叠框</div>
+            </div>
+          </div>
+          <div class="wf-step">
+            <div class="step-number">4</div>
+            <div class="step-arrow"></div>
+            <div class="step-content">
+              <div class="step-title">状态判定 (规则引擎)</div>
+              <div class="step-detail">计算人脸中心偏移量 (center_dx/dy)、面积占比 (area_ratio)、置信度 (score)，按优先级判定学习状态</div>
+            </div>
+          </div>
+          <div class="wf-step">
+            <div class="step-number">5</div>
+            <div class="step-arrow"></div>
+            <div class="step-content">
+              <div class="step-title">前端行动执行</div>
+              <div class="step-detail">Canvas 绘制人脸框 (绿/橙/红) → 宠物表情切换 → 语音提醒触发 → 分心计数 +1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 问答工作流 -->
+      <div class="workflow-card wf-chat">
+        <div class="wf-header">
+          <span class="wf-icon">🤖</span>
+          <span class="wf-title">工作流 B：考研智能问答</span>
+        </div>
+        <div class="wf-steps">
+          <div class="wf-step">
+            <div class="step-number">1</div>
+            <div class="step-arrow"></div>
+            <div class="step-content">
+              <div class="step-title">用户提问 + 历史加载</div>
+              <div class="step-detail">前端发送 question + subject + session_id → 后端从 chat_history 加载该会话历史消息</div>
+            </div>
+          </div>
+          <div class="wf-step">
+            <div class="step-number">2</div>
+            <div class="step-arrow"></div>
+            <div class="step-content">
+              <div class="step-title">问题向量化</div>
+              <div class="step-detail">调用 DeepSeek embedding API 将问题转为 1536 维向量；失败则返回模拟向量</div>
+              <div class="step-code">POST {base_url}/embeddings</div>
+            </div>
+          </div>
+          <div class="wf-step">
+            <div class="step-number">3</div>
+            <div class="step-arrow"></div>
+            <div class="step-content">
+              <div class="step-title">RAG 知识检索</div>
+              <div class="step-detail">pgvector 余弦相似度搜索 top-5 相关文档 (生产) / SQLite LIKE 关键词搜索 (开发回退)</div>
+            </div>
+          </div>
+          <div class="wf-step">
+            <div class="step-number">4</div>
+            <div class="step-arrow"></div>
+            <div class="step-content">
+              <div class="step-title">Prompt 构建</div>
+              <div class="step-detail">科目专属系统提示 (政治/英语/数学/专业课) + 注入检索参考资料 + 追加知识总结要求</div>
+            </div>
+          </div>
+          <div class="wf-step">
+            <div class="step-number">5</div>
+            <div class="step-arrow"></div>
+            <div class="step-content">
+              <div class="step-title">DeepSeek 流式生成</div>
+              <div class="step-detail">httpx 原生 stream 调用，逐 chunk yield 给 SSE，前端逐字渲染</div>
+              <div class="step-code">POST {base_url}/chat/completions  stream=True</div>
+            </div>
+          </div>
+          <div class="wf-step">
+            <div class="step-number">6</div>
+            <div class="step-content">
+              <div class="step-title">对话历史持久化</div>
+              <div class="step-detail">用户消息 + AI 完整回复存入 chat_history 表，session_id 关联会话</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 状态判定决策表 -->
+    <div class="decision-table">
+      <h3>📋 学习状态判定决策表 (规划层规则引擎)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>优先级</th>
+            <th>触发条件</th>
+            <th>判定状态</th>
+            <th>专注分数</th>
+            <th>行动响应</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1 (最高)</td>
+            <td>无人脸 / 面积比 &lt; 1.5%</td>
+            <td><span class="status-badge status-leave">离开</span></td>
+            <td>10</td>
+            <td>红色遮罩 + "你去哪里了呀？"语音</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>中心偏移 X &gt; 62% 或 Y &gt; 72%</td>
+            <td><span class="status-badge status-away">开小差</span></td>
+            <td>≤ 32</td>
+            <td>橙色框 + "好像走神了呢"语音</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>检测置信度 &lt; 0.4</td>
+            <td><span class="status-badge status-distract">分心</span></td>
+            <td>≤ 55</td>
+            <td>红色框 + "注意力飘走了哦"语音</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>偏移 X&lt;50% 且 Y&lt;62% 且 面积≥2%</td>
+            <td><span class="status-badge status-focus">专注</span></td>
+            <td>≥ 78</td>
+            <td>绿色框 + 宠物安静看书动画</td>
+          </tr>
+          <tr>
+            <td>5 (默认)</td>
+            <td>其他情况</td>
+            <td><span class="status-badge status-distract">分心</span></td>
+            <td>≤ 65</td>
+            <td>红色框 + 分心提醒</td>
+          </tr>
+          <tr style="background:#f0fdf4;">
+            <td>定时器</td>
+            <td>25分钟计时到达</td>
+            <td>—</td>
+            <td>—</td>
+            <td>宠物跳出 + "该休息一下啦~"语音</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

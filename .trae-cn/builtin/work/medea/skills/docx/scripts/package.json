@@ -1,0 +1,9 @@
+{
+  "name": "docx-scripts",
+  "version": "1.0.0",
+  "description": "DOCX automation scripts",
+  "type": "commonjs",
+  "dependencies": {
+    "docx": "^8.5.0"
+  }
+}

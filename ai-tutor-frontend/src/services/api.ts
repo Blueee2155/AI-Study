@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { Message } from '@/types';
 
 const api = axios.create({
-  baseURL: '',
+  baseURL: '', // 使用相对URL，通过proxy-server转发到后端
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -41,8 +41,15 @@ export async function createSession(subject: string, title?: string) {
 }
 
 export async function getMessages(sessionId: string): Promise<Message[]> {
-  const res = await api.get(`/api/chat/history/${sessionId}`);
-  return res.data?.messages || [];
+  try {
+    const res = await api.get(`/api/chat/history/${sessionId}`);
+    return res.data?.messages || [];
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return []; // 新会话还没有消息，返回空数组
+    }
+    throw error;
+  }
 }
 
 export async function getSessions() {
@@ -114,6 +121,30 @@ export async function sendMessageStream(
   const reader = response.body?.getReader();
   if (!reader) throw new Error('无法获取响应流');
   return reader;
+}
+
+// ===== Vision API =====
+
+export interface VisionDetectionResult {
+  status: string; // 专注、分心、开小差、离开
+  focus_score: number; // 0-100
+  confidence: number; // 置信度 0-100
+  reason: string;
+  faces: Array<{
+    bbox: [number, number, number, number]; // [x, y, w, h]
+    score: number;
+    source: string;
+  }>;
+  model: string;
+  frame?: {
+    width: number;
+    height: number;
+  };
+}
+
+export async function detectFaceFromFrame(imageBase64: string): Promise<VisionDetectionResult> {
+  const res = await api.post('/api/vision/detect', { image: imageBase64 });
+  return res.data;
 }
 
 export { api };

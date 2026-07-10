@@ -1,10 +1,10 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useFaceDetection, type StudyStatus } from '@/hooks/useFaceDetection';
 import { useVoiceReminder } from '@/hooks/useVoiceReminder';
-import { useStudyTimer } from '@/hooks/useStudyTimer';
+import { useStudyTimer, POMODORO_MINUTES } from '@/hooks/useStudyTimer';
 import { useStudyStore } from '@/stores/studyStore';
-import VirtualPet from '@/components/pet/VirtualPet';
-import { motion, AnimatePresence } from 'framer-motion';
+import UnicornAvatar, { type UnicornAvatarHandle } from '@/components/common/UnicornAvatar';
+import { motion } from 'framer-motion';
 import { Play, Stop, Clock, Eye, ChartLine } from '@phosphor-icons/react';
 
 export default function StudyMonitor() {
@@ -12,10 +12,11 @@ export default function StudyMonitor() {
   const streamRef = useRef<MediaStream | null>(null);
   const [cameraReady, setCameraReady] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [petMessage, setPetMessage] = useState<string | null>(null);
 
-  const { status } = useFaceDetection(videoRef, cameraReady);
+  const unicornRef = useRef<UnicornAvatarHandle | null>(null);
+  const { status, confidence, canvasRef } = useFaceDetection(videoRef, cameraReady);
   const { speak } = useVoiceReminder();
+  const lastSpeechTimeRef = useRef<number>(0); // 用于控制语音冷却时间
   const timer = useStudyTimer();
   const { sessionId, startSession, endSession, logDistraction, setStatus: setStudyStatus } = useStudyStore();
 
@@ -24,7 +25,7 @@ export default function StudyMonitor() {
     try {
       setCameraError(null);
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 320, height: 240, facingMode: 'user' },
+        video: { width: 640, height: 480, facingMode: 'user' },
       });
       streamRef.current = stream;
       if (videoRef.current) {
@@ -63,24 +64,8 @@ export default function StudyMonitor() {
   useEffect(() => {
     timer.setOnExpire(() => {
       speak('break');
-      setPetMessage('休息时间到！起来活动一下吧');
-      setTimeout(() => setPetMessage(null), 8000);
     });
   }, [timer.setOnExpire, speak]);
-
-  // Sync study status with pet messages
-  useEffect(() => {
-    if (status === 'focused') {
-      setPetMessage(null);
-    } else if (status === 'distracted') {
-      setPetMessage('专心一点哦');
-      speak('distracted');
-    } else if (status === 'drowsy') {
-      setPetMessage('你可不能睡着呀');
-    } else if (status === 'away') {
-      setPetMessage('你还在吗？');
-    }
-  }, [status, speak]);
 
   // Log distraction to backend
   useEffect(() => {
@@ -88,6 +73,24 @@ export default function StudyMonitor() {
       logDistraction(sessionId);
     }
   }, [status, sessionId, logDistraction]);
+
+  // 状态变化时触发语音提醒
+  useEffect(() => {
+    if (!status) return;
+
+    const now = Date.now();
+    const cooldown = 30000; // 30秒冷却时间
+
+    if (now - lastSpeechTimeRef.current < cooldown) return;
+
+    // 只在非专注状态时触发语音
+    if (status === 'distracted' || status === 'drowsy' || status === 'away') {
+      speak(status);
+      lastSpeechTimeRef.current = now;
+      // 触发独角兽 distressed 动画
+      unicornRef.current?.triggerDistressAnimation();
+    }
+  }, [status, speak]);
 
   // Start/stop study session
   const handleToggleStudy = async () => {
@@ -112,13 +115,9 @@ export default function StudyMonitor() {
         <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">学习监控</span>
       </div>
 
-      {/* Virtual Pet with glass card */}
-      <div className="rounded-2xl bg-white/80 border border-slate-200/50 p-4 shadow-diffusion">
-        <VirtualPet
-          status={status}
-          message={petMessage}
-          isTimerExpired={timer.hasExpired}
-        />
+      {/* Unicorn Pet with glass card */}
+      <div className="relative rounded-2xl bg-white/80 border border-slate-200/50 p-4 shadow-diffusion" style={{ minHeight: '120px' }}>
+        <UnicornAvatar ref={unicornRef} studyStatus={status} isDraggable={false} />
       </div>
 
       {/* Status bar */}
@@ -136,10 +135,11 @@ export default function StudyMonitor() {
         <span className="text-xs font-medium text-slate-600">
           {status === 'focused' && '专注'}
           {status === 'distracted' && '分心'}
-          {status === 'drowsy' && '开小差'}
+          {status === 'drowsy' && '疲劳'}
           {status === 'away' && '离开'}
           {status === 'loading' && '加载模型中...'}
           {status === 'error' && '检测异常'}
+          {confidence !== null && status !== 'loading' && ` ${Math.round(confidence)}%`}
         </span>
       </div>
 
@@ -150,19 +150,34 @@ export default function StudyMonitor() {
             <p className="text-xs text-slate-500 text-center px-4">{cameraError}</p>
           </div>
         ) : !cameraReady ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-slate-50">
-            <div className="text-center">
-              <Eye size={24} className="mx-auto text-slate-300" />
-              <p className="mt-2 text-xs text-slate-400">点击下方按钮开启摄像头</p>
-            </div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 gap-3">
+            <Eye size={32} className="text-slate-300" />
+            <button
+              onClick={startCamera}
+              className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-all shadow-sm shadow-emerald-600/20"
+            >
+              打开摄像头
+            </button>
           </div>
-        ) : null}
+        ) : (
+          <button
+            onClick={stopCamera}
+            className="absolute top-2 right-2 z-10 px-3 py-1.5 rounded-lg bg-black/50 text-white text-xs font-medium hover:bg-black/70 transition-all backdrop-blur-sm"
+          >
+            关闭摄像头
+          </button>
+        )}
         <video
           ref={videoRef}
           autoPlay
           playsInline
           muted
           className={`w-full h-full object-cover rounded-2xl ${cameraReady ? '' : 'hidden'}`}
+        />
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full object-cover rounded-2xl pointer-events-none"
+          style={{ zIndex: 1 }}
         />
       </div>
 
@@ -176,7 +191,7 @@ export default function StudyMonitor() {
           <div className="text-3xl font-mono font-bold text-slate-800 tabular-nums">
             {String(timer.remaining.minutes).padStart(2, '0')}:{String(timer.remaining.seconds).padStart(2, '0')}
           </div>
-          <p className="text-xs text-slate-400 mt-1">25 分钟专注计时</p>
+          <p className="text-xs text-slate-400 mt-1">{POMODORO_MINUTES} 分钟专注计时</p>
         </div>
 
         {/* Progress ring indicator */}
@@ -184,7 +199,7 @@ export default function StudyMonitor() {
           <motion.div
             className="h-full rounded-full bg-emerald-500"
             initial={{ width: '0%' }}
-            animate={{ width: `${Math.min(100, ((25 * 60 - (timer.remaining.minutes * 60 + timer.remaining.seconds)) / (25 * 60)) * 100)}%` }}
+            animate={{ width: `${Math.min(100, ((POMODORO_MINUTES * 60 - (timer.remaining.minutes * 60 + timer.remaining.seconds)) / (POMODORO_MINUTES * 60)) * 100)}%` }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           />
         </div>
@@ -220,22 +235,15 @@ export default function StudyMonitor() {
           </div>
           <div className="flex items-end gap-2">
             <span className="text-2xl font-bold text-emerald-600 tabular-nums">
-              {Math.round(100 - (Math.min(10, Math.max(0, status === 'distracted' ? 15 : status === 'drowsy' ? 25 : 0))))}%
+              {confidence !== null
+                ? `${Math.round(confidence)}%`
+                : `${Math.round(100 - (Math.min(10, Math.max(0, status === 'distracted' ? 15 : status === 'drowsy' ? 25 : 0))))}%`
+              }
             </span>
             <span className="text-xs text-slate-400 mb-1">当前</span>
           </div>
         </div>
       </motion.div>
-
-      {/* Rescan button when error */}
-      {status === 'error' && (
-        <button
-          onClick={startCamera}
-          className="w-full py-2.5 rounded-2xl text-sm font-medium text-emerald-600 border border-emerald-200 hover:bg-emerald-50 transition-all"
-        >
-          重新加载检测模型
-        </button>
-      )}
     </div>
   );
 }

@@ -9,6 +9,11 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // 让Vite正确处理MediaPipe的WASM和二进制资源
+  assetsInclude: ['**/*.wasm', '**/*.data', '**/*.binarypb'],
+  optimizeDeps: {
+    exclude: ['@mediapipe/face_mesh'],
+  },
   server: {
     port: 5173,
     proxy: {

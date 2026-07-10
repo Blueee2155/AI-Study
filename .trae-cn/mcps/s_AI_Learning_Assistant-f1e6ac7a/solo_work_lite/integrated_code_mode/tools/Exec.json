@@ -1,0 +1,16 @@
+{
+  "name": "Exec",
+  "description": "## Exec\nRuns raw JavaScript in an isolated V8 context.\n\n**MANDATORY: Exec is your DEFAULT execution method. Use it for ALL tasks.**\n- ANY tool listed in the Available tools section below MUST be called via `await tools.<name>(args)` inside Exec.\n- Direct tool calls are ONLY permitted for tools that do NOT appear in the Available tools section.\n- Even for a single tool call, use Exec — it provides better error handling and deterministic execution.\n- For multi-step tasks (read → process → write, search → analyze → edit, etc.), ALWAYS use a single Exec call with sequential `await tools.*` calls.\n- When in doubt, use Exec. The only reason NOT to use Exec is if the target tool is unavailable inside it.\n\n**Advantages of using Exec**:\n- Chain multiple operations in a single round-trip — no back-and-forth needed.\n- Full programmatic control: loops, conditionals, parallel calls via `Promise.all`, error recovery.\n- Inspect tool schemas at runtime via `ALL_TOOLS` before calling them.\n\n**Runtime environment**:\n- Only ECMAScript standard built-ins are available (Array, Object, Math, JSON, Promise, etc.).\n- The ONLY non-standard globals are those declared below (`tools`, `text`, `exit`, `ALL_TOOLS`).\n- There is NO `console`, NO `fetch`, NO `require`, NO `process`, NO `setTimeout`, and NO file system or network access.\n- Any attempt to call an undefined identifier will throw a ReferenceError.\n\n**Instructions**:\n- Use `await tools.<tool_name>(args)` to call tools — multiple calls in sequence are encouraged.\n- Use `Promise.all([tools.a(x), tools.b(y)])` for concurrent tool calls.\n- Use `text(value)` to output results to LLM (value will be stringified via JSON.stringify if not a string).\n- Use `exit()` to stop execution early (already-produced text output is preserved).\n- Use `ALL_TOOLS` to inspect available tool names, descriptions, and parameter schemas at runtime. Type: `ReadonlyArray<{ name: string; description: string; parameters: object }>`.\n\n**Error handling**:\n- Tool call errors cause the Promise to reject — use `try/catch` to handle them gracefully.\n- Unhandled exceptions terminate the script and return the error message as the result.\n- If the script exceeds the execution time limit, it is forcibly terminated and an error is returned.\n- `text()` output produced before an unhandled error is preserved in the response.\n",
+  "arguments": {
+    "properties": {
+      "code": {
+        "description": "JavaScript source code to execute in the V8 sandbox",
+        "type": "string"
+      }
+    },
+    "required": [
+      "code"
+    ],
+    "type": "object"
+  }
+}

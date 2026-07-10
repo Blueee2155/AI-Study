@@ -2,20 +2,28 @@ import { useCallback, useRef } from 'react';
 
 const REMINDER_MESSAGES: Record<string, string[]> = {
   focused: [
-    '专注',
+    '太棒啦！继续保持这个专注状态哦~ ✨',
+    '你认真学习的样子真好看！加油呀~ 🌟',
+    '专注力满分，学习效率up up~ 💪',
   ],
   distracted: [
-    '分心',
+    '咦？是不是走神啦？让我们回到学习上吧~ 🎯',
+    '注意力跑偏了呢，一起回来继续加油~ 🦄',
+    '小可爱，课本在这里哦，别发呆啦~ 📚',
   ],
   drowsy: [
-    '开小差',
+    '有点累了吗？深呼吸一下，打起精神来~ ',
+    '困困的时候更要坚持一下下哦，你可以的~ ⭐',
+    '喝口水活动一下，然后继续加油~ ',
   ],
   away: [
-    '离开',
+    '你去哪里啦？记得回来继续学习哦~ 🌈',
+    '休息一下可以，但别忘了我们的学习目标呀~ 🎯',
+    '快回来吧，独角兽想你了~ 🦄',
   ],
   break: [
-    '已经学习 25 分钟啦！起来走动一下，眺望远方放松眼睛吧~',
-    '专注学习 25 分钟，给自己一个短暂的休息奖励吧~',
+    '已经学习 20 分钟啦！起来走动一下，眺望远方放松眼睛吧~',
+    '专注学习 20 分钟，给自己一个短暂的休息奖励吧~',
     '番茄时间到！休息五分钟，然后继续充满活力地学习吧~',
   ],
 };
@@ -44,9 +52,9 @@ export function useVoiceReminder() {
     const utterance = new SpeechSynthesisUtterance(text);
     
     utterance.lang = 'zh-CN';
-    utterance.rate = 0.85;   // 语速稍慢，更温柔
-    utterance.pitch = 1.1;    // 音调稍高，更亲切
-    utterance.volume = 0.8;
+    utterance.rate = 1.5;   // 语速较快，更自然流畅
+    utterance.pitch = 1.2;  // 音调更柔和，更有亲切感
+    utterance.volume = 0.9; // 音量稍大，更清晰
 
     // 尝试选择中文语音
     const voices = window.speechSynthesis.getVoices();

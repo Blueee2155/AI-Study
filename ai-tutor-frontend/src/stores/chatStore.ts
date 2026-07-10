@@ -35,11 +35,15 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   addMessage: (message) => {
     const { sessions, activeSessionId } = get();
     set({
-      sessions: sessions.map(s =>
-        s.session_id === activeSessionId
-          ? { ...s, messages: [...s.messages, message] }
-          : s
-      ),
+      sessions: sessions.map(s => {
+        if (s.session_id !== activeSessionId) return s;
+        // 去重：检查是否已存在相同 role 和 content 的消息
+        const isDuplicate = s.messages.some(
+          m => m.role === message.role && m.content === message.content
+        );
+        if (isDuplicate) return s;
+        return { ...s, messages: [...s.messages, message] };
+      }),
     });
   },
 

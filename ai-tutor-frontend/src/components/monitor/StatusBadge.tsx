@@ -9,7 +9,7 @@ interface StatusBadgeProps {
 const statusConfig: Record<StudyStatus, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
   focused: { label: '专注', color: 'bg-emerald-500', bg: 'bg-emerald-50', icon: <Brain size={14} weight="fill" /> },
   distracted: { label: '分心', color: 'bg-amber-500', bg: 'bg-amber-50', icon: <Eye size={14} weight="fill" /> },
-  drowsy: { label: '开小差', color: 'bg-orange-500', bg: 'bg-orange-50', icon: <Moon size={14} weight="fill" /> },
+  drowsy: { label: '疲劳', color: 'bg-orange-500', bg: 'bg-orange-50', icon: <Moon size={14} weight="fill" /> },
   away: { label: '离开', color: 'bg-slate-400', bg: 'bg-slate-50', icon: <DoorOpen size={14} weight="fill" /> },
   idle: { label: '等待开始', color: 'bg-slate-300', bg: 'bg-slate-50', icon: <Clock size={14} weight="fill" /> },
   loading: { label: '加载中...', color: 'bg-blue-400', bg: 'bg-blue-50', icon: <Spinner size={14} weight="fill" className="animate-spin" /> },

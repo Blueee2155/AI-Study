@@ -1,15 +1,28 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './components/layout/Dashboard';
 import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
 import ChatPanel from './components/chat/ChatPanel';
+import { useAuthStore } from './stores/authStore';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const token = localStorage.getItem('ai-tutor-auth');
-  if (!token) {
-    window.location.href = '/login';
-    return null;
+  const { isAuthenticated, checkAuth } = useAuthStore();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    // 验证token有效性
+    checkAuth().finally(() => setChecking(false));
+  }, []);
+
+  if (checking) {
+    return <div className="min-h-screen flex items-center justify-center">加载中...</div>;
   }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
   return <>{children}</>;
 }
 

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI学习助手 - 系统整体架构图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    background: #f0f4f8;
+    padding: 40px 20px;
+    color: #1e293b;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 28px; margin-bottom: 8px; color: #0f172a; }
+  .subtitle { text-align: center; color: #64748b; margin-bottom: 40px; font-size: 14px; }
+
+  .arch-diagram {
+    background: #fff;
+    border-radius: 16px;
+    padding: 48px 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+
+  .layer {
+    border: 2px solid;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .layer-title {
+    position: absolute;
+    top: -12px;
+    left: 24px;
+    background: #fff;
+    padding: 2px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 6px;
+  }
+
+  .layer-frontend { border-color: #3b82f6; background: #eff6ff; }
+  .layer-frontend .layer-title { color: #1d4ed8; border: 2px solid #3b82f6; }
+
+  .layer-backend { border-color: #10b981; background: #ecfdf5; }
+  .layer-backend .layer-title { color: #047857; border: 2px solid #10b981; }
+
+  .layer-data { border-color: #f59e0b; background: #fffbeb; }
+  .layer-data .layer-title { color: #b45309; border: 2px solid #f59e0b; }
+
+  .layer-external { border-color: #8b5cf6; background: #f5f3ff; }
+  .layer-external .layer-title { color: #6d28d9; border: 2px solid #8b5cf6; }
+
+  .modules {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .module {
+    flex: 1;
+    min-width: 180px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-top: 4px solid;
+  }
+  .layer-frontend .module { border-top-color: #3b82f6; }
+  .layer-backend .module { border-top-color: #10b981; }
+  .layer-data .module { border-top-color: #f59e0b; }
+  .layer-external .module { border-top-color: #8b5cf6; }
+
+  .module-icon { font-size: 28px; margin-bottom: 8px; }
+  .module-name { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+  .module-desc { font-size: 12px; color: #64748b; line-height: 1.5; }
+
+  .arrow {
+    text-align: center;
+    font-size: 24px;
+    color: #94a3b8;
+    margin: 8px 0;
+  }
+  .arrow-label {
+    font-size: 11px;
+    color: #64748b;
+    background: #fff;
+    padding: 2px 10px;
+    border-radius: 4px;
+  }
+
+  .auth-bar {
+    background: #fef3c7;
+    border: 2px dashed #f59e0b;
+    border-radius: 8px;
+    padding: 12px 20px;
+    text-align: center;
+    margin: 16px 0;
+    font-size: 13px;
+    color: #92400e;
+    font-weight: 600;
+  }
+
+  .legend {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #475569;
+  }
+  .legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>AI 学习助手 — 系统整体架构图</h1>
+  <p class="subtitle">考研助手智能体 | 前后端分离 + Agent 感知-规划-行动三层架构</p>
+
+  <div class="arch-diagram">
+
+    <!-- 前端层 -->
+    <div class="layer layer-frontend">
+      <span class="layer-title">浏览器前端层 (Port 8080)</span>
+      <div class="modules">
+        <div class="module">
+          <div class="module-icon">📷</div>
+          <div class="module-name">摄像头模块</div>
+          <div class="module-desc">getUserMedia 采集<br>Canvas 绘制人脸框<br>500ms 截帧发送</div>
+        </div>
+        <div class="module">
+          <div class="module-icon">🦉</div>
+          <div class="module-name">虚拟宠物 UI</div>
+          <div class="module-desc">CSS 动画表情切换<br>Web Speech 语音提醒<br>25分钟定时器</div>
+        </div>
+        <div class="module">
+          <div class="module-icon">💬</div>
+          <div class="module-name">问答对话界面</div>
+          <div class="module-desc">Markdown 渲染<br>会话列表管理<br>科目切换隔离</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 箭头 -->
+    <div class="arrow">
+      ▲▼ &nbsp; <span class="arrow-label">HTTP / fetch + SSE (Server-Sent Events)</span> &nbsp; ▲▼
+    </div>
+
+    <!-- 后端层 -->
+    <div class="layer layer-backend">
+      <span class="layer-title">FastAPI 后端层 (Port 8000)</span>
+
+      <div class="auth-bar">🔐 JWT 认证中间件 — 注册 / 登录 / Token 验证 / get_current_user 依赖注入</div>
+
+      <div class="modules">
+        <div class="module">
+          <div class="module-icon">👁️</div>
+          <div class="module-name">视觉检测模块<br><small>(Agent 感知)</small></div>
+          <div class="module-desc">
+            OpenCV Haar Cascade<br>
+            多分类器融合检测<br>
+            CLAHE 对比度增强<br>
+            YOLOv8 人脸检测(增强)<br>
+            状态分类: 专注/分心/开小差/离开
+          </div>
+        </div>
+        <div class="module">
+          <div class="module-icon">🧠</div>
+          <div class="module-name">问答服务模块<br><small>(Agent 行动)</small></div>
+          <div class="module-desc">
+            DeepSeek API 流式调用<br>
+            RAG 知识库检索<br>
+            科目专属 Prompt<br>
+            SSE 逐字推送<br>
+            自动生成知识总结
+          </div>
+        </div>
+        <div class="module">
+          <div class="module-icon">📊</div>
+          <div class="module-name">学习记录模块<br><small>(数据持久化)</small></div>
+          <div class="module-desc">
+            学习会话管理<br>
+            专注时长统计<br>
+            分心次数记录<br>
+            每日学习报告
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-bar">⚙️ 运行时设置模块 — API Key 动态配置 (内存存储，不写入文件)</div>
+    </div>
+
+    <!-- 箭头 -->
+    <div class="arrow">
+      ▲▼ &nbsp; <span class="arrow-label">SQLAlchemy ORM + AsyncSession</span> &nbsp; ▲▼
+    </div>
+
+    <!-- 数据层 -->
+    <div class="layer layer-data">
+      <span class="layer-title">数据持久化层</span>
+      <div class="modules">
+        <div class="module">
+          <div class="module-icon">👥</div>
+          <div class="module-name">users 表</div>
+          <div class="module-desc">id, username, email<br>hashed_password, created_at</div>
+        </div>
+        <div class="module">
+          <div class="module-icon">📝</div>
+          <div class="module-name">chat_history 表</div>
+          <div class="module-desc">id, user_id, session_id<br>subject, role, content</div>
+        </div>
+        <div class="module">
+          <div class="module-icon">📚</div>
+          <div class="module-name">knowledge_base 表</div>
+          <div class="module-desc">id, subject, content<br>embedding(向量), source</div>
+        </div>
+        <div class="module">
+          <div class="module-icon">⏱️</div>
+          <div class="module-name">study_sessions 表</div>
+          <div class="module-desc">id, user_id, start_time<br>end_time, focus_duration<br>distraction_count</div>
+        </div>
+      </div>
+      <p style="text-align:center; margin-top:12px; font-size:12px; color:#92400e;">
+        开发环境: SQLite (ai_tutor.db) &nbsp;|&nbsp; 生产环境: PostgreSQL + pgvector 向量检索
+      </p>
+    </div>
+
+    <!-- 箭头 -->
+    <div class="arrow">
+      ▲▼ &nbsp; <span class="arrow-label">httpx 原生 HTTP 调用 (兼容 OpenAI 格式)</span> &nbsp; ▲▼
+    </div>
+
+    <!-- 外部服务层 -->
+    <div class="layer layer-external">
+      <span class="layer-title">外部 AI 服务</span>
+      <div class="modules">
+        <div class="module">
+          <div class="module-icon">🤖</div>
+          <div class="module-name">DeepSeek API</div>
+          <div class="module-desc">
+            模型: deepseek-chat<br>
+            用途: 考研问答主模型<br>
+            流式输出 (stream=True)<br>
+            max_tokens=4096, temp=0.7
+          </div>
+        </div>
+        <div class="module">
+          <div class="module-icon">🔢</div>
+          <div class="module-name">DeepSeek Embedding</div>
+          <div class="module-desc">
+            模型: deepseek-embedding<br>
+            用途: RAG 文本向量化<br>
+            维度: 1536<br>
+            失败回退: 关键词搜索
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 图例 -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-color" style="background:#3b82f6;"></div> 前端层
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background:#10b981;"></div> 后端层
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background:#f59e0b;"></div> 数据层
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background:#8b5cf6;"></div> 外部服务
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background:#fef3c7; border:1px dashed #f59e0b;"></div> 安全/中间件
+    </div>
+  </div>
+</div>
+</body>
+</html>

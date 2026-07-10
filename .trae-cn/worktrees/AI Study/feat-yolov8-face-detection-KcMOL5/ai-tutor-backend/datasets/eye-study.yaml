@@ -1,0 +1,6 @@
+path: ./datasets/eye-study
+train: images/train
+val: images/val
+
+names:
+  0: eye

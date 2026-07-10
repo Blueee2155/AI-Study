@@ -92,6 +92,101 @@
   .btn-magnetic:active {
     transform: scale(0.96);
   }
+
+  /* ── Unicorn Avatar ── */
+  .unicorn-container {
+    transition: opacity 0.3s ease;
+  }
+
+  .unicorn-body {
+    filter: drop-shadow(0 4px 12px rgba(139, 92, 246, 0.15));
+  }
+
+  .unicorn-mood-focused {
+    animation: unicorn-float 3s ease-in-out infinite;
+  }
+
+  .unicorn-mood-focused .unicorn-glow {
+    animation: unicorn-pulse-glow 2s ease-in-out infinite;
+  }
+
+  .unicorn-mood-distracted {
+    animation: unicorn-shake 1.5s ease-in-out infinite;
+  }
+
+  .unicorn-mood-absent-minded {
+    animation: unicorn-wobble 2s ease-in-out infinite;
+  }
+
+  .unicorn-mood-away {
+    animation: unicorn-sleep-breathe 3s ease-in-out infinite;
+  }
+
+  .unicorn-bubble {
+    position: absolute;
+    top: -32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #475569;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid rgba(226,232,240,0.8);
+    pointer-events: none;
+  }
+
+  .unicorn-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-right: 1px solid rgba(226,232,240,0.8);
+    border-bottom: 1px solid rgba(226,232,240,0.8);
+  }
+
+  .unicorn-label {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 500;
+    color: #94a3b8;
+    margin-top: -2px;
+    pointer-events: none;
+  }
+
+  @keyframes unicorn-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  @keyframes unicorn-pulse-glow {
+    0%, 100% { opacity: 0.15; }
+    50% { opacity: 0.35; }
+  }
+
+  @keyframes unicorn-shake {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    25% { transform: translateX(-3px) rotate(-2deg); }
+    75% { transform: translateX(3px) rotate(2deg); }
+  }
+
+  @keyframes unicorn-wobble {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-3deg); }
+    75% { transform: rotate(3deg); }
+  }
+
+  @keyframes unicorn-sleep-breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
 }
 
 @layer utilities {

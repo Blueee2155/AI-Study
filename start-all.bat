@@ -1,43 +1,27 @@
 @echo off
-cd /d "%~dp0"
+echo Starting AI Study Assistant...
+echo.
 
-:: Check if backend already running
-curl -s http://127.0.0.1:8000/api/health >nul 2>&1
-if %errorlevel% equ 0 (
-    echo [OK] Backend already running
-    goto frontend
-)
+REM Start backend server
+echo [1/2] Starting backend server on port 8000...
+cd /d "%~dp0ai-tutor-backend"
+start "Backend Server" cmd /k ".venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+timeout /t 3 /nobreak >nul
 
-echo [1/3] Starting backend (port 8000)...
-start "" /min cmd /c ""%~dp0start-backend.bat""
-
-:: Wait for backend (max 30 seconds)
-set wait_count=0
-:wait_loop
-set /a wait_count+=1
-if %wait_count% gtr 15 (
-    echo [WARN] Backend may not have started in time, continuing...
-    goto frontend
-)
+REM Start frontend proxy server (handles API forwarding)
+echo [2/2] Starting frontend proxy server on port 8080...
+cd /d "%~dp0ai-tutor-frontend"
+start "Frontend Proxy Server" cmd /k "python proxy-server.py"
 timeout /t 2 /nobreak >nul
-curl -s http://127.0.0.1:8000/api/health >nul 2>&1
-if %errorlevel% neq 0 goto wait_loop
-echo [OK] Backend running on http://127.0.0.1:8000
-
-:frontend
-echo [2/3] Starting frontend server (port 8080)...
-start "" /min cmd /c "cd /d "%~dp0" && python -m http.server 8080 --bind 0.0.0.0"
-timeout /t 2 /nobreak >nul
-echo [OK] Frontend running on http://127.0.0.1:8080
-
-echo [3/3] Opening browser...
-start http://127.0.0.1:8080/owlstudy-app.html
 
 echo.
 echo ========================================
-echo  Backend: http://127.0.0.1:8000
-echo  Frontend: http://127.0.0.1:8080/owlstudy-app.html
+echo Servers started successfully!
+echo ========================================
+echo Backend API: http://localhost:8000
+echo Frontend App: http://localhost:8080
 echo ========================================
 echo.
-echo Close this window to stop.
-pause >nul
+echo Opening browser...
+timeout /t 2 /nobreak >nul
+start http://localhost:8080

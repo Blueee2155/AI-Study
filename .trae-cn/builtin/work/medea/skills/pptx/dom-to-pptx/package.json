@@ -1,0 +1,13 @@
+{
+  "name": "html-to-pptx-converter",
+  "version": "1.0.0",
+  "description": "Convert HTML slides to PPTX using dom-to-pptx and Puppeteer",
+  "main": "convert.js",
+  "scripts": {
+    "convert": "node convert.js"
+  },
+  "dependencies": {
+    "puppeteer": "24.37.2",
+    "dom-to-pptx": "1.1.5"
+  }
+}

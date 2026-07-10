@@ -352,7 +352,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans S
   </div>
 </div>
 
-<!-- ===== FLOATING PET OVERLAY ===== -->
+<!-- ===== FLOATING DRAGGABLE PET OVERLAY ===== -->
 <div id="pet-overlay">
   <div class="pet-body mood-neutral" id="petBody">
     <div class="pet-dot g" id="petDot"></div>
@@ -652,17 +652,6 @@ function drawVisionResult(ctx,d,cv){
     ctx.fillRect(x,Math.max(0,y-28),tw+12,28);
     ctx.fillStyle='#fff';
     ctx.fillText(label,x+6,Math.max(16,y-8));
-    (f.eyes||[]).slice(0,2).forEach(function(e){
-      var eb=e.bbox;
-      ctx.strokeStyle='#38bdf8';
-      ctx.lineWidth=2;
-      ctx.strokeRect(eb[0]*sx,eb[1]*sy,eb[2]*sx,eb[3]*sy);
-      if(e.state){
-        ctx.fillStyle='#0ea5e9';
-        ctx.font='bold 12px sans-serif';
-        ctx.fillText(e.state,eb[0]*sx,Math.max(12,eb[1]*sy-4));
-      }
-    });
   }else{
     ctx.fillStyle=d.status==='开小差'?'rgba(245,158,11,0.08)':'rgba(239,68,68,0.08)';
     ctx.fillRect(0,0,cv.width,cv.height);

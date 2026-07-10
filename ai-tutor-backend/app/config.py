@@ -19,18 +19,17 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24小时
 
-    # DeepSeek API (问答主模型，兼容 OpenAI 格式)
+    # DeepSeek API (问答主模型 + embedding，兼容 OpenAI 格式)
     DEEPSEEK_API_KEY: str = ""
     DEEPSEEK_BASE_URL: str = "https://api.deepseek.com/v1"
     DEEPSEEK_MODEL: str = "deepseek-chat"
+    DEEPSEEK_EMBEDDING_MODEL: str = "text-embedding-3-small"
 
-    # OpenAI (用于 embedding)
-    OPENAI_API_KEY: str = ""
-    EMBEDDING_MODEL: str = "text-embedding-3-small"
+    # Embedding 维度
     EMBEDDING_DIMENSION: int = 1536
 
     # CORS
-    CORS_ORIGINS: list[str] = ["*"]
+    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000", "*"]
 
     class Config:
         env_file = ".env"

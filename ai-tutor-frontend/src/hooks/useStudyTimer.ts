@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useStudyStore } from '../stores/studyStore';
 
-const POMODORO_MINUTES = 25;
+export const POMODORO_MINUTES = 25;
 const POMODORO_SECONDS = POMODORO_MINUTES * 60;
 
 export function useStudyTimer() {
@@ -32,9 +32,10 @@ export function useStudyTimer() {
     };
   }, [sessionActive, tick]);
 
+  const totalRemaining = Math.max(0, POMODORO_SECONDS - elapsedSeconds);
   const remaining = {
-    minutes: Math.max(0, POMODORO_MINUTES - Math.floor(elapsedSeconds / 60)),
-    seconds: Math.max(0, 59 - (elapsedSeconds % 60)),
+    minutes: Math.floor(totalRemaining / 60),
+    seconds: totalRemaining % 60,
   };
   const hasExpired = elapsedSeconds >= POMODORO_SECONDS && elapsedSeconds > 0;
 

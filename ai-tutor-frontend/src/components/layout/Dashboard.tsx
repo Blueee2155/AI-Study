@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import StudyMonitor from '@/components/monitor/StudyMonitor';
+import LuckyUnicorn from '@/components/common/LuckyUnicorn';
 
 export default function Dashboard() {
   return (
@@ -21,6 +22,9 @@ export default function Dashboard() {
           <StudyMonitor />
         </aside>
       </div>
+
+      {/* Lucky Unicorn Pet */}
+      <LuckyUnicorn />
     </div>
   );
 }

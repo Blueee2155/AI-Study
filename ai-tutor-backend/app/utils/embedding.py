@@ -1,14 +1,28 @@
 """
 文本向量化工具
-使用 OpenAI 的 text-embedding-3-small 模型
+使用 DeepSeek embedding API
 """
 
-from openai import AsyncOpenAI
+import os
+import httpx
 from app.config import get_settings
 
 settings = get_settings()
 
-# 缓存嵌入向量，减少 API 调用
+_proxy_vars = ["HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "ALL_PROXY", "all_proxy"]
+for _var in _proxy_vars:
+    os.environ.pop(_var, None)
+
+_httpx_client: httpx.AsyncClient | None = None
+
+
+def _get_httpx_client() -> httpx.AsyncClient:
+    global _httpx_client
+    if _httpx_client is None:
+        _httpx_client = httpx.AsyncClient(timeout=60.0)
+    return _httpx_client
+
+
 _embedding_cache: dict[str, list[float]] = {}
 
 
@@ -20,32 +34,37 @@ async def get_embedding(text: str) -> list[float]:
         text: 输入文本
 
     Returns:
-        1536 维的浮点数向量
+        浮点数向量
     """
-    # 检查缓存
     cache_key = text.strip().lower()
     if cache_key in _embedding_cache:
         return _embedding_cache[cache_key]
 
-    if not settings.OPENAI_API_KEY:
-        # 无 API key 时返回模拟 embedding（仅用于开发）
+    api_key = settings.DEEPSEEK_API_KEY
+    if not api_key:
         import random
         random.seed(hash(cache_key) % (2**31))
         fake_embedding = [random.uniform(-0.1, 0.1) for _ in range(settings.EMBEDDING_DIMENSION)]
-        # 归一化
         norm = sum(x**2 for x in fake_embedding) ** 0.5
         fake_embedding = [x / norm for x in fake_embedding]
         return fake_embedding
 
     try:
-        client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-        response = await client.embeddings.create(
-            model=settings.EMBEDDING_MODEL,
-            input=text,
-        )
-        embedding = response.data[0].embedding
+        client = _get_httpx_client()
+        url = f"{settings.DEEPSEEK_BASE_URL}/embeddings"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": settings.DEEPSEEK_EMBEDDING_MODEL,
+            "input": text,
+        }
+        response = await client.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        data = response.json()
+        embedding = data["data"][0]["embedding"]
 
-        # 写入缓存
         _embedding_cache[cache_key] = embedding
         return embedding
 
@@ -57,7 +76,6 @@ async def get_embeddings_batch(texts: list[str]) -> list[list[float]]:
     """
     批量获取 embedding 向量
     """
-    # 检查缓存
     uncached = []
     result = []
     for t in texts:
@@ -66,11 +84,11 @@ async def get_embeddings_batch(texts: list[str]) -> list[list[float]]:
             result.append(_embedding_cache[key])
         else:
             uncached.append(t)
-            result.append(None)  # 占位
+            result.append(None)
 
     if uncached:
-        if not settings.OPENAI_API_KEY:
-            # 开发模式返回模拟向量
+        api_key = settings.DEEPSEEK_API_KEY
+        if not api_key:
             import random
             for i, t in enumerate(texts):
                 if result[i] is None:
@@ -82,15 +100,24 @@ async def get_embeddings_batch(texts: list[str]) -> list[list[float]]:
                     _embedding_cache[t.strip().lower()] = emb
             return result
 
-        client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-        response = await client.embeddings.create(
-            model=settings.EMBEDDING_MODEL,
-            input=uncached,
-        )
+        client = _get_httpx_client()
+        url = f"{settings.DEEPSEEK_BASE_URL}/embeddings"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": settings.DEEPSEEK_EMBEDDING_MODEL,
+            "input": uncached,
+        }
+        response = await client.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        data = response.json()
+
         emb_idx = 0
         for i, r in enumerate(result):
             if r is None:
-                embedding = response.data[emb_idx].embedding
+                embedding = data["data"][emb_idx]["embedding"]
                 result[i] = embedding
                 _embedding_cache[texts[i].strip().lower()] = embedding
                 emb_idx += 1

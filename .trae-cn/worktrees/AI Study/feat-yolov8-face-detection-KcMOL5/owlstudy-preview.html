@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OwlStudy - AI考研助手 界面预览</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & base ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',system-ui,sans-serif;background:#f8fafb;color:#1e293b;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ── Header ── */
+.header{background:linear-gradient(135deg,#059669,#047857,#064e3b);padding:24px 48px;color:#fff;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:20px;font-weight:700;letter-spacing:-0.3px}
+.header span{opacity:.7;font-size:13px}
+.header-badge{padding:4px 12px;background:rgba(255,255,255,.12);border-radius:999px;font-size:12px;font-weight:500}
+
+/* ── Section title ── */
+.section-title{font-size:13px;font-weight:600;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;padding:32px 48px 12px}
+
+/* ── Screenshot wrapper ── */
+.scroll-x{overflow-x:auto;padding:0 48px 40px;white-space:nowrap;scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
+.scroll-x::-webkit-scrollbar{height:6px}
+.scroll-x::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
+
+/* ── Screen card ── */
+.screen-card{display:inline-block;vertical-align:top;white-space:normal;width:900px;margin-right:24px;border-radius:12px;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,.15);background:#fff;border:1px solid #e2e8f0}
+.screen-card:last-child{margin-right:0}
+.screen-label{padding:10px 16px;background:#f1f5f9;font-size:12px;font-weight:600;color:#64748b;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:8px}
+.screen-label .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+/* ── Login page mock ── */
+.login-page{display:flex;height:520px}
+.login-left{flex:1;background:linear-gradient(135deg,#059669,#047857,#064e3b);padding:40px;color:#fff;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.login-left::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;background:rgba(110,231,183,.12);border-radius:50%;filter:blur(60px)}
+.login-left::after{content:'';position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;background:rgba(52,211,153,.12);border-radius:50%;filter:blur(60px)}
+.login-left .brand{display:flex;align-items:center;gap:10px;margin-bottom:24px;position:relative;z-index:1}
+.login-left .brand-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.login-left h2{font-size:32px;font-weight:800;line-height:1.2;position:relative;z-index:1}
+.login-left h2 span{color:#a7f3d0}
+.login-left p{color:rgba(209,250,229,.7);margin-top:16px;font-size:14px;line-height:1.6;max-width:320px;position:relative;z-index:1}
+.login-left .features{display:flex;flex-direction:column;gap:10px;margin-top:24px;position:relative;z-index:1}
+.login-left .features div{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(209,250,229,.7)}
+.login-left .features div::before{content:'';width:6px;height:6px;border-radius:50%;background:rgba(52,211,153,.5)}
+
+.login-right{flex:1;display:flex;align-items:center;justify-content:center;padding:40px;background:#fff}
+.login-form{width:100%;max-width:320px}
+.login-form h3{font-size:26px;font-weight:700;color:#0f172a}
+.login-form .sub{font-size:13px;color:#64748b;margin-top:4px;margin-bottom:24px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:500;color:#475569;margin-bottom:4px}
+.form-group input{width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;outline:none;transition:all .2s}
+.form-group input:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.1)}
+.login-btn{width:100%;padding:11px;border:none;border-radius:10px;background:#059669;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.login-btn:hover{background:#047857}
+.login-footer{text-align:center;margin-top:24px;font-size:13px;color:#94a3b8}
+.login-footer a{color:#059669;font-weight:500;text-decoration:none}
+
+/* ── Dashboard mock ── */
+.dashboard{display:flex;height:620px}
+
+/* ── Sidebar ── */
+.dash-sidebar{width:220px;background:rgba(255,255,255,.9);backdrop-filter:blur(24px);border-right:1px solid rgba(226,232,240,.5);display:flex;flex-direction:column}
+.sidebar-header{padding:16px 16px 12px;border-bottom:1px solid #f1f5f9}
+.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sidebar-brand .icon{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#10b981,#047857);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
+.sidebar-brand h4{font-size:14px;font-weight:700;color:#1e293b}
+.sidebar-brand p{font-size:10px;color:#94a3b8;letter-spacing:1px}
+.new-chat-btn{width:100%;padding:9px;border:none;border-radius:10px;background:#059669;color:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+
+.session-list{flex:1;overflow-y:auto;padding:8px}
+.session-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;transition:all .15s;font-size:13px;color:#475569}
+.session-item:hover{background:#f8fafc}
+.session-item.active{background:#ecfdf5;color:#064e3b}
+.session-item .subject-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.subject-math{background:#f5f3ff;color:#7c3aed}
+.subject-eng{background:#eff6ff;color:#2563eb}
+.subject-pol{background:#fff1f2;color:#e11d48}
+.subject-major{background:#fffbeb;color:#d97706}
+
+.sidebar-footer{padding:8px 16px;border-top:1px solid #f1f5f9}
+.logout-btn{width:100%;padding:9px;border:none;border-radius:10px;background:transparent;color:#94a3b8;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s}
+.logout-btn:hover{background:#fef2f2;color:#dc2626}
+
+/* ── Main content ── */
+.dash-main{flex:1;display:flex;flex-direction:column;min-width:0}
+.chat-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(226,232,240,.5);background:rgba(255,255,255,.4);backdrop-filter:blur(12px)}
+.chat-header-left{display:flex;align-items:center;gap:10px}
+.chat-header-left .icon{width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,#ecfdf5,#d1fae5);display:flex;align-items:center;justify-content:center;color:#059669;font-size:14px}
+.chat-header-left h3{font-size:14px;font-weight:600;color:#1e293b}
+.subject-select{padding:5px 28px 5px 10px;font-size:12px;font-weight:500;border-radius:8px;border:1px solid;appearance:none;background:no-repeat right 8px center;background-size:10px;cursor:pointer}
+.subject-select.math{background-color:#f5f3ff;border-color:#ddd6fe;color:#7c3aed;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")}
+
+.chat-messages{flex:1;overflow-y:auto;padding:20px;background:#f8fafb;display:flex;flex-direction:column;gap:16px}
+.empty-state{text-align:center;padding:60px 20px 40px}
+.empty-state .big-icon{width:56px;height:56px;border-radius:20px;background:linear-gradient(135deg,#34d399,#059669);display:flex;align-items:center;justify-content:center;margin:0 auto;color:#fff;font-size:24px;box-shadow:0 8px 24px rgba(5,150,105,.15)}
+.empty-state h3{font-size:18px;font-weight:700;color:#1e293b;margin-top:16px}
+.empty-state p{font-size:13px;color:#94a3b8;margin-top:6px;max-width:300px;margin-left:auto;margin-right:auto}
+.subject-tags{display:flex;gap:8px;justify-content:center;margin-top:16px}
+.subject-tags button{padding:5px 14px;border-radius:8px;font-size:11px;font-weight:500;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all .15s}
+.subject-tags button:hover{border-color:#cbd5e1}
+.subject-tags button.active{border-color:#a7f3d0;color:#059669;background:#ecfdf5}
+
+/* ── Message bubbles ── */
+.msg{display:flex;gap:10px;max-width:75%}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.msg .avatar{width:28px;height:28px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.msg.user .avatar{background:#d1fae5;color:#059669}
+.msg.ai .avatar{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#d97706}
+.msg .bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6}
+.msg.user .bubble{background:#059669;color:#fff;border-bottom-right-radius:4px}
+.msg.ai .bubble{background:#fff;border:1px solid rgba(226,232,240,.6);border-bottom-left-radius:4px;color:#334155}
+.msg.ai .bubble .thinking-cursor::after{content:'▊';margin-left:2px;color:#10b981;animation:blink 1s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.chat-input{padding:14px 20px;border-top:1px solid rgba(226,232,240,.5);background:rgba(255,255,255,.4);backdrop-filter:blur(12px)}
+.input-row{display:flex;gap:8px;align-items:flex-end}
+.input-row textarea{flex:1;padding:10px 14px;border:1px solid rgba(226,232,240,.7);border-radius:10px;font-size:13px;resize:none;outline:none;transition:all .2s;background:rgba(255,255,255,.5);min-height:40px}
+.input-row textarea:focus{border-color:#34d399;box-shadow:0 0 0 3px rgba(16,185,129,.08)}
+.send-btn{padding:10px 16px;border:none;border-radius:10px;background:#059669;color:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap}
+.send-btn:hover{background:#047857}
+
+/* ── Right panel: Study Monitor ── */
+.dash-right{width:280px;border-left:1px solid rgba(226,232,240,.5);background:rgba(255,255,255,.25);backdrop-filter:blur(4px);overflow-y:auto;padding:12px}
+.panel-section{margin-bottom:12px}
+.panel-label{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.panel-label .pulse-dot{width:6px;height:6px;border-radius:50%;background:#10b981;animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.panel-label span{font-size:10px;font-weight:600;color:#94a3b8;letter-spacing:2px;text-transform:uppercase}
+
+/* ── Pet card ── */
+.pet-card{border-radius:12px;background:rgba(255,255,255,.5);border:1px solid rgba(226,232,240,.5);padding:16px;text-align:center}
+.pet-card svg{margin:0 auto}
+.pet-mood{font-size:10px;color:#94a3b8;margin-top:4px}
+
+/* ── Status badge ── */
+.status-row{display:flex;align-items:center;gap:8px;padding:2px 0}
+.status-dot{width:8px;height:8px;border-radius:50%}
+.status-dot.focused{background:#10b981;box-shadow:0 0 8px rgba(16,185,129,.3)}
+.status-label{font-size:12px;color:#475569}
+
+/* ── Camera view ── */
+.camera-placeholder{border-radius:12px;background:rgba(15,23,42,.03);border:1px solid rgba(226,232,240,.5);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}
+.camera-placeholder .inner{text-align:center;color:#94a3b8}
+.camera-placeholder .inner .cam-icon{font-size:24px}
+.camera-placeholder .inner p{font-size:11px;margin-top:8px}
+
+/* ── Timer ── */
+.timer-card{border-radius:12px;background:rgba(255,255,255,.5);border:1px solid rgba(226,232,240,.5);padding:16px}
+.timer-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.timer-header span{font-size:10px;font-weight:600;color:#94a3b8;letter-spacing:1px;text-transform:uppercase}
+.timer-display{text-align:center}
+.timer-display .time{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:#1e293b}
+.timer-display .label{font-size:11px;color:#94a3b8;margin-top:2px}
+.timer-bar{width:100%;height:6px;background:#f1f5f9;border-radius:999px;margin-top:10px;overflow:hidden}
+.timer-bar .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#10b981,#34d399);width:45%;transition:width .5s}
+
+.start-btn{width:100%;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;transition:all .2s}
+.start-btn.idle{background:#059669;color:#fff}
+.start-btn.idle:hover{background:#047857}
+.start-btn.running{background:#fef2f2;color:#dc2626;border:1px solid rgba(220,38,38,.15)}
+.start-btn.running:hover{background:#fee2e2}
+
+/* ── Focus score ── */
+.focus-card{border-radius:12px;background:rgba(255,255,255,.5);border:1px solid rgba(226,232,240,.5);padding:16px;margin-top:8px}
+.focus-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.focus-header span{font-size:10px;font-weight:600;color:#94a3b8;letter-spacing:1px;text-transform:uppercase}
+.focus-score{font-size:22px;font-weight:700;color:#059669}
+.focus-score .unit{font-size:12px;color:#94a3b8}
+</style>
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<div class="header">
+  <div>
+    <h1>🦉 OwlStudy — AI 考研助手</h1>
+    <span>前端界面全景预览 · 构建版 v1.0.0</span>
+  </div>
+  <div class="header-badge">React 18 + TypeScript + Tailwind</div>
+</div>
+
+<div class="section-title">登录 / 注册页面</div>
+<div class="scroll-x">
+  <div class="screen-card">
+    <div class="screen-label"><span class="dot" style="background:#10b981"></span> 登录页 · LoginPage</div>
+    <div class="login-page">
+      <div class="login-left">
+        <div class="brand">
+          <div class="brand-icon" style="font-size:16px">🦉</div>
+          <span style="font-size:16px;font-weight:600">OwlStudy</span>
+        </div>
+        <h2>开始你的<br><span>考研备考之旅</span></h2>
+        <p>AI 驱动的智能学习助手。专注度监测、个性化辅导，助你高效备考。</p>
+        <div class="features">
+          <div>面部识别专注度监测</div>
+          <div>AI 智能问答辅导</div>
+          <div>番茄钟学习管理</div>
+        </div>
+      </div>
+      <div class="login-right">
+        <div class="login-form">
+          <h3>欢迎回来</h3>
+          <p class="sub">登录以继续你的学习进度</p>
+          <div class="form-group">
+            <label>用户名</label>
+            <input type="text" placeholder="请输入用户名" value="kaoyan_user" style="border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.1)">
+          </div>
+          <div class="form-group">
+            <label>密码</label>
+            <input type="password" placeholder="请输入密码" value="········">
+          </div>
+          <button class="login-btn">登录 <span>→</span></button>
+          <p class="login-footer">还没有账号？ <a href="#">立即注册</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen-card">
+    <div class="screen-label"><span class="dot" style="background:#8b5cf6"></span> 注册页 · RegisterPage</div>
+    <div class="login-page">
+      <div class="login-left" style="background:linear-gradient(135deg,#059669,#047857,#064e3b)">
+        <div class="brand">
+          <div class="brand-icon" style="font-size:16px">🦉</div>
+          <span style="font-size:16px;font-weight:600">OwlStudy</span>
+        </div>
+        <h2 style="margin-top:40px">加入 OwlStudy<br><span>开启高效学习</span></h2>
+        <p style="margin-top:12px">注册后即可享受 AI 驱动的学习监督、智能问答和专注度分析。</p>
+      </div>
+      <div class="login-right">
+        <div class="login-form">
+          <h3>创建账号</h3>
+          <p class="sub">填写以下信息开始你的学习之旅</p>
+          <div class="form-group"><label>用户名</label><input type="text" placeholder="例如：考研小王"></div>
+          <div class="form-group"><label>邮箱</label><input type="email" placeholder="your@email.com"></div>
+          <div class="form-group"><label>密码</label><input type="password" placeholder="至少 6 位密码"></div>
+          <div class="form-group"><label>确认密码</label><input type="password" placeholder="再次输入密码"></div>
+          <button class="login-btn">创建账号 <span>→</span></button>
+          <p class="login-footer">已有账号？ <a href="#">立即登录</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">主界面 · 三栏布局 (空对话状态 + 学习监控)</div>
+<div class="scroll-x">
+  <div class="screen-card">
+    <div class="screen-label"><span class="dot" style="background:#10b981"></span> Dashboard — 空状态</div>
+    <div class="dashboard">
+      <!-- Sidebar -->
+      <div class="dash-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-brand">
+            <div class="icon">🦉</div>
+            <div><h4>OwlStudy</h4><p>AI 考研助手</p></div>
+          </div>
+          <button class="new-chat-btn">+ 新建对话</button>
+        </div>
+        <div class="session-list">
+          <div style="text-align:center;padding:40px 0;color:#cbd5e1;font-size:12px">暂无对话记录</div>
+        </div>
+        <div class="sidebar-footer">
+          <button class="logout-btn">退出登录</button>
+        </div>
+      </div>
+
+      <!-- Main -->
+      <div class="dash-main">
+        <div class="chat-header">
+          <div class="chat-header-left">
+            <div class="icon">💬</div>
+            <h3>考研问答</h3>
+          </div>
+          <select class="subject-select math">
+            <option>政治</option>
+            <option>英语</option>
+            <option selected>数学</option>
+            <option>专业课</option>
+          </select>
+        </div>
+        <div class="chat-messages">
+          <div class="empty-state">
+            <div class="big-icon">🦉</div>
+            <h3>开始你的提问</h3>
+            <p>选择科目后，输入你想要了解的考研知识点或题目，AI 助手将为你提供详细的解答</p>
+            <div class="subject-tags">
+              <button>政治</button>
+              <button style="background:#ecfdf5;border-color:#a7f3d0;color:#059669">数学</button>
+              <button>英语</button>
+              <button>专业课</button>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input">
+          <div class="input-row">
+            <textarea placeholder="输入你的考研问题，Enter 发送，Shift+Enter 换行..." rows="1"></textarea>
+            <button class="send-btn">发送</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right panel -->
+      <div class="dash-right">
+        <div class="panel-section">
+          <div class="panel-label"><div class="pulse-dot"></div><span>学习监控</span></div>
+          <div class="pet-card">
+            <svg viewBox="0 0 120 140" width="80" height="93">
+              <ellipse cx="60" cy="90" rx="44" ry="38" fill="rgba(16,185,129,0.08)"/>
+              <ellipse cx="18" cy="85" rx="14" ry="22" fill="#6B4E12"/>
+              <ellipse cx="102" cy="85" rx="14" ry="22" fill="#6B4E12"/>
+              <ellipse cx="60" cy="90" rx="38" ry="33" fill="#8B6914"/>
+              <ellipse cx="60" cy="92" rx="28" ry="24" fill="#D4A843"/>
+              <polygon points="38,32 34,22 44,30" fill="#6B4E12"/>
+              <polygon points="82,32 86,22 76,30" fill="#6B4E12"/>
+              <circle cx="60" cy="58" r="30" fill="#8B6914"/>
+              <circle cx="48" cy="55" r="10" fill="white"/>
+              <circle cx="72" cy="55" r="10" fill="white"/>
+              <circle cx="48" cy="55" r="6" fill="#2C1810"/>
+              <circle cx="72" cy="55" r="6" fill="#2C1810"/>
+              <circle cx="50" cy="53" r="2" fill="white"/>
+              <circle cx="74" cy="53" r="2" fill="white"/>
+              <polygon points="55,63 65,63 60,71" fill="#F4A460"/>
+              <ellipse cx="47" cy="127" rx="8" ry="4" fill="#F4A460"/>
+              <ellipse cx="73" cy="127" rx="8" ry="4" fill="#F4A460"/>
+            </svg>
+            <div class="pet-mood">状态良好 · 等待开始学习</div>
+          </div>
+          <div class="status-row" style="margin-top:8px">
+            <div class="status-dot" style="background:#cbd5e1"></div>
+            <span class="status-label">等待开始</span>
+          </div>
+        </div>
+        <div class="camera-placeholder">
+          <div class="inner">
+            <div class="cam-icon">📷</div>
+            <p>点击下方按钮开启摄像头</p>
+          </div>
+        </div>
+        <div class="timer-card" style="margin-top:12px">
+          <div class="timer-header">⏱ <span>番茄计时</span></div>
+          <div class="timer-display">
+            <div class="time">25:00</div>
+            <div class="label">25 分钟专注计时</div>
+          </div>
+          <div class="timer-bar"><div class="fill" style="width:0%"></div></div>
+        </div>
+        <button class="start-btn idle">▶ 开始学习</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">主界面 · 对话中 (带流式回复 + 专注监测)</div>
+<div class="scroll-x">
+  <div class="screen-card">
+    <div class="screen-label"><span class="dot" style="background:#10b981"></span> Dashboard — 对话进行中</div>
+    <div class="dashboard">
+      <!-- Sidebar with sessions -->
+      <div class="dash-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-brand">
+            <div class="icon">🦉</div>
+            <div><h4>OwlStudy</h4><p>AI 考研助手</p></div>
+          </div>
+          <button class="new-chat-btn">+ 新建对话</button>
+        </div>
+        <div class="session-list">
+          <div class="session-item active">
+            <div class="subject-icon subject-math">∑</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">极限的计算方法有哪些？</div>
+              <div style="font-size:10px;color:#94a3b8">数学</div>
+            </div>
+          </div>
+          <div class="session-item">
+            <div class="subject-icon subject-pol">政</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">马克思主义哲学的核心观点</div>
+              <div style="font-size:10px;color:#94a3b8">政治</div>
+            </div>
+          </div>
+          <div class="session-item">
+            <div class="subject-icon subject-eng">EN</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">考研英语阅读技巧总结</div>
+              <div style="font-size:10px;color:#94a3b8">英语</div>
+            </div>
+          </div>
+          <div class="session-item">
+            <div class="subject-icon subject-major">💻</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">数据结构-快速排序算法</div>
+              <div style="font-size:10px;color:#94a3b8">专业课</div>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar-footer">
+          <button class="logout-btn">退出登录</button>
+        </div>
+      </div>
+
+      <!-- Main with messages -->
+      <div class="dash-main">
+        <div class="chat-header">
+          <div class="chat-header-left">
+            <div class="icon">💬</div>
+            <h3>考研问答</h3>
+          </div>
+          <select class="subject-select math">
+            <option>政治</option>
+            <option>英语</option>
+            <option selected>数学</option>
+            <option>专业课</option>
+          </select>
+        </div>
+        <div class="chat-messages" style="justify-content:flex-end">
+          <div class="msg user">
+            <div class="avatar">👤</div>
+            <div class="bubble">考研数学中，极限的计算方法都有哪些？能举例说明吗</div>
+          </div>
+          <div class="msg ai">
+            <div class="avatar">🦉</div>
+            <div class="bubble">
+              <strong>极限的计算方法是高等数学的核心基础，考研中常见的计算方法包括：</strong>
+              <br><br>
+              <strong>1. 直接代入法</strong><br>
+              当函数在x₀处连续时，直接代入x₀计算。<br>
+              例：lim_{x→2} (3x+1) = 7
+              <br><br>
+              <strong>2. 等价无穷小替换（重点）</strong><br>
+              x→0时常用：sinx~x, tanx~x, ln(1+x)~x, e^x-1~x, 1-cosx~½x²
+              <br><br>
+              <strong>3. 洛必达法则</strong><br>
+              适用于0/0或∞/∞型未定式，分子分母分别求导。
+              <br><br>
+              <strong>4. 两个重要极限</strong><br>
+              lim_{x→0} sinx/x = 1<br>
+              lim_{x→∞} (1+1/x)^x = e
+              <br><br>
+              <strong>5. 泰勒公式展开</strong><br>
+              将函数展开为多项式，适用于复杂函数的极限计算。
+              <br><br>
+              📌 <strong>推荐真题：</strong> 求 lim_{x→0} (e^x-1-x)/x²
+            </div>
+          </div>
+          <div class="msg user">
+            <div class="avatar">👤</div>
+            <div class="bubble">那等价无穷小替换有什么注意事项吗？</div>
+          </div>
+          <div class="msg ai">
+            <div class="avatar">🦉</div>
+            <div class="bubble">
+              等价无穷小替换的注意事项非常重要，考研中常考易错：
+              <br><br>
+              <strong>⚠️ 核心原则：</strong>只能在乘除因子中使用，不能在加减法中直接替换！
+              <br><br>
+              <strong>正确示例：</strong><br>
+              lim_{x→0} (sinx·tanx)/x² = lim_{x→0} (x·x)/x² = 1 ✓
+              <br><br>
+              <strong>错误示例：</strong><br>
+              lim_{x→0} (x-sinx)/x³ ❌ 不能直接将sinx替换为x<br>
+              正确做法：用泰勒公式 x - sinx ~ x³/6
+              <br><br>
+              <strong>记忆口诀：</strong>乘除无忌，加减三思。<span class="thinking-cursor"></span>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input">
+          <div class="input-row">
+            <textarea placeholder="输入你的考研问题，Enter 发送，Shift+Enter 换行..." rows="1"></textarea>
+            <button class="send-btn">发送</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right panel: studying active -->
+      <div class="dash-right">
+        <div class="panel-section">
+          <div class="panel-label"><div class="pulse-dot"></div><span>学习监控</span></div>
+          <div class="pet-card" style="position:relative">
+            <!-- Pet message bubble -->
+            <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#fff;border-radius:10px;padding:4px 12px;font-size:11px;border:1px solid #e2e8f0;white-space:nowrap;z-index:2">
+              看起来你学习得很专注呢
+              <div style="position:absolute;bottom:-4px;left:50%;transform:translateX(-50%) rotate(45deg);width:6px;height:6px;background:#fff;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0"></div>
+            </div>
+            <svg viewBox="0 0 120 140" width="80" height="93">
+              <ellipse cx="60" cy="90" rx="44" ry="38" fill="rgba(16,185,129,0.08)"/>
+              <ellipse cx="18" cy="85" rx="14" ry="22" fill="#6B4E12"/>
+              <ellipse cx="102" cy="85" rx="14" ry="22" fill="#6B4E12"/>
+              <ellipse cx="60" cy="90" rx="38" ry="33" fill="#8B6914"/>
+              <ellipse cx="60" cy="92" rx="28" ry="24" fill="#D4A843"/>
+              <polygon points="38,32 34,22 44,30" fill="#6B4E12"/>
+              <polygon points="82,32 86,22 76,30" fill="#6B4E12"/>
+              <circle cx="60" cy="58" r="30" fill="#8B6914"/>
+              <circle cx="48" cy="55" r="10" fill="white"/>
+              <circle cx="72" cy="55" r="10" fill="white"/>
+              <circle cx="48" cy="55" r="6" fill="#2C1810"/>
+              <circle cx="72" cy="55" r="6" fill="#2C1810"/>
+              <circle cx="50" cy="53" r="2" fill="white"/>
+              <circle cx="74" cy="53" r="2" fill="white"/>
+              <polygon points="55,63 65,63 60,71" fill="#F4A460"/>
+              <ellipse cx="47" cy="127" rx="8" ry="4" fill="#F4A460"/>
+              <ellipse cx="73" cy="127" rx="8" ry="4" fill="#F4A460"/>
+            </svg>
+            <div class="pet-mood" style="color:#10b981;font-weight:500">状态良好</div>
+          </div>
+          <div class="status-row" style="margin-top:8px">
+            <div class="status-dot focused"></div>
+            <span class="status-label">专注学习中</span>
+          </div>
+        </div>
+        <div class="camera-placeholder" style="position:relative;overflow:hidden">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0f172a08,#0f172a04)">
+            <div style="position:absolute;top:8px;right:8px;width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,.6)"></div>
+          </div>
+          <div class="inner">
+            <div class="cam-icon" style="opacity:.4">📷</div>
+            <p style="font-size:10px;opacity:.5">摄像头已开启 320×240</p>
+          </div>
+        </div>
+        <div class="timer-card" style="margin-top:12px">
+          <div class="timer-header">⏱ <span>番茄计时</span></div>
+          <div class="timer-display">
+            <div class="time">22:35</div>
+            <div class="label">已专注 2 分 25 秒</div>
+          </div>
+          <div class="timer-bar"><div class="fill" style="width:9%"></div></div>
+        </div>
+        <div class="focus-card">
+          <div class="focus-header">📊 <span>专注度</span></div>
+          <div class="focus-score">85<span class="unit">%</span> <span style="font-size:12px;font-weight:400;color:#94a3b8">当前</span></div>
+        </div>
+        <button class="start-btn running">⏹ 结束学习</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">宠物状态变化 · 5种情绪</div>
+<div class="scroll-x" style="padding-bottom:60px">
+  <div style="display:flex;gap:24px">
+    <div class="screen-card" style="width:200px;margin:0">
+      <div class="screen-label" style="justify-content:center">专注 · happy</div>
+      <div class="pet-card" style="border:none;border-radius:0">
+        <svg viewBox="0 0 120 140" width="100" height="116">
+          <ellipse cx="60" cy="90" rx="44" ry="38" fill="rgba(16,185,129,0.08)"/>
+          <ellipse cx="18" cy="85" rx="14" ry="22" fill="#6B4E12"/>
+          <ellipse cx="102" cy="85" rx="14" ry="22" fill="#6B4E12"/>
+          <ellipse cx="60" cy="90" rx="38" ry="33" fill="#8B6914"/>
+          <ellipse cx="60" cy="92" rx="28" ry="24" fill="#D4A843"/>
+          <polygon points="38,32 34,22 44,30" fill="#6B4E12"/>
+          <polygon points="82,32 86,22 76,30" fill="#6B4E12"/>
+          <circle cx="60" cy="58" r="30" fill="#8B6914"/>
+          <circle cx="48" cy="55" r="10" fill="white"/><circle cx="72" cy="55" r="10" fill="white"/>
+          <circle cx="48" cy="55" r="6" fill="#2C1810"/><circle cx="72" cy="55" r="6" fill="#2C1810"/>
+          <circle cx="50" cy="53" r="2" fill="white"/><circle cx="74" cy="53" r="2" fill="white"/>
+          <polygon points="55,63 65,63 60,71" fill="#F4A460"/>
+          <ellipse cx="47" cy="127" rx="8" ry="4" fill="#F4A460"/>
+          <ellipse cx="73" cy="127" rx="8" ry="4" fill="#F4A460"/>
+        </svg>
+        <div class="pet-mood" style="color:#10b981">状态良好</div>
+      </div>
+    </div>
+    <div class="screen-card" style="width:200px;margin:0">
+      <div class="screen-label" style="justify-content:center">分心 · worried</div>
+      <div class="pet-card" style="border:none;border-radius:0">
+        <svg viewBox="0 0 120 140" width="100" height="116">
+          <ellipse cx="60" cy="90" rx="38" ry="33" fill="#8B6914"/>
+          <ellipse cx="60" cy="92" rx="28" ry="24" fill="#D4A843"/>
+          <polygon points="38,32 34,22 44,30" fill="#6B4E12"/>
+          <polygon points="82,32 86,22 76,30" fill="#6B4E12"/>
+          <circle cx="60" cy="58" r="30" fill="#8B6914"/>
+          <circle cx="48" cy="55" r="10" fill="white"/><circle cx="72" cy="55" r="10" fill="white"/>
+          <circle cx="48" cy="55" r="5" fill="#2C1810"/><circle cx="72" cy="55" r="5" fill="#2C1810"/>
+          <circle cx="50" cy="53" r="2" fill="white"/><circle cx="74" cy="53" r="2" fill="white"/>
+          <polygon points="55,63 65,63 60,71" fill="#F4A460"/>
+          <ellipse cx="47" cy="127" rx="8" ry="4" fill="#F4A460"/>
+          <ellipse cx="73" cy="127" rx="8" ry="4" fill="#F4A460"/>
+          <!-- Exclamation -->
+          <text x="86" y="24" font-size="14" fill="#F59E0B" font-weight="700">!</text>
+        </svg>
+        <div class="pet-mood" style="color:#f59e0b">需要专注</div>
+      </div>
+    </div>
+    <div class="screen-card" style="width:200px;margin:0">
+      <div class="screen-label" style="justify-content:center">瞌睡 · sleepy</div>
+      <div class="pet-card" style="border:none;border-radius:0">
+        <svg viewBox="0 0 120 140" width="100" height="116">
+          <ellipse cx="60" cy="90" rx="38" ry="33" fill="#8B6914"/>
+          <ellipse cx="60" cy="92" rx="28" ry="24" fill="#D4A843"/>
+          <polygon points="38,32 34,22 44,30" fill="#6B4E12"/>
+          <polygon points="82,32 86,22 76,30" fill="#6B4E12"/>
+          <circle cx="60" cy="58" r="30" fill="#8B6914"/>
+          <line x1="41" y1="55" x2="55" y2="55" stroke="#2C1810" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="65" y1="55" x2="79" y2="55" stroke="#2C1810" stroke-width="2.5" stroke-linecap="round"/>
+          <polygon points="55,63 65,63 60,71" fill="#F4A460"/>
+          <ellipse cx="47" cy="127" rx="8" ry="4" fill="#F4A460"/>
+          <ellipse cx="73" cy="127" rx="8" ry="4" fill="#F4A460"/>
+          <!-- Zzz -->
+          <text x="82" y="28" fill="#94A3B8" font-size="12" font-weight="600" opacity="0.6">z</text>
+          <text x="90" y="18" fill="#94A3B8" font-size="14" font-weight="600" opacity="0.4">z</text>
+        </svg>
+        <div class="pet-mood" style="color:#94a3b8">有点困了</div>
+      </div>
+    </div>
+    <div class="screen-card" style="width:200px;margin:0">
+      <div class="screen-label" style="justify-content:center">离开 · neutral</div>
+      <div class="pet-card" style="border:none;border-radius:0">
+        <svg viewBox="0 0 120 140" width="100" height="116">
+          <ellipse cx="60" cy="90" rx="38" ry="33" fill="#8B6914"/>
+          <ellipse cx="60" cy="92" rx="28" ry="24" fill="#D4A843"/>
+          <polygon points="38,32 34,22 44,30" fill="#6B4E12"/>
+          <polygon points="82,32 86,22 76,30" fill="#6B4E12"/>
+          <circle cx="60" cy="58" r="30" fill="#8B6914"/>
+          <circle cx="48" cy="55" r="9" fill="white"/><circle cx="72" cy="55" r="9" fill="white"/>
+          <circle cx="48" cy="55" r="4" fill="#2C1810"/><circle cx="72" cy="55" r="4" fill="#2C1810"/>
+          <polygon points="55,63 65,63 60,71" fill="#F4A460"/>
+          <ellipse cx="47" cy="127" rx="8" ry="4" fill="#F4A460"/>
+          <ellipse cx="73" cy="127" rx="8" ry="4" fill="#F4A460"/>
+        </svg>
+        <div class="pet-mood" style="color:#94a3b8">等待中</div>
+      </div>
+    </div>
+    <div class="screen-card" style="width:200px;margin:0">
+      <div class="screen-label" style="justify-content:center">25min到 · celebrate</div>
+      <div class="pet-card" style="border:none;border-radius:0">
+        <svg viewBox="0 0 120 140" width="100" height="116">
+          <!-- Animated wings -->
+          <ellipse cx="18" cy="85" rx="14" ry="22" fill="#6B4E12" style="transform-origin:150% 50%">
+            <animateTransform attributeName="transform" type="rotate" values="-20;20;-20" dur="0.6s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="102" cy="85" rx="14" ry="22" fill="#6B4E12" style="transform-origin:-50% 50%">
+            <animateTransform attributeName="transform" type="rotate" values="20;-20;20" dur="0.6s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="60" cy="90" rx="38" ry="33" fill="#8B6914"/>
+          <ellipse cx="60" cy="92" rx="28" ry="24" fill="#D4A843"/>
+          <polygon points="38,32 34,22 44,30" fill="#6B4E12"/>
+          <polygon points="82,32 86,22 76,30" fill="#6B4E12"/>
+          <circle cx="60" cy="58" r="30" fill="#8B6914"/>
+          <circle cx="48" cy="55" r="10" fill="white"/><circle cx="72" cy="55" r="10" fill="white"/>
+          <circle cx="48" cy="55" r="6" fill="#2C1810"/><circle cx="72" cy="55" r="6" fill="#2C1810"/>
+          <circle cx="50" cy="53" r="2" fill="white"/><circle cx="74" cy="53" r="2" fill="white"/>
+          <polygon points="55,63 65,63 60,71" fill="#F4A460"/>
+          <ellipse cx="47" cy="127" rx="8" ry="4" fill="#F4A460"/>
+          <ellipse cx="73" cy="127" rx="8" ry="4" fill="#F4A460"/>
+          <!-- Celebration sparkles -->
+          <circle cx="25" cy="40" r="2" fill="#F59E0B"><animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite"/></circle>
+          <circle cx="95" cy="35" r="2" fill="#10b981"><animate attributeName="opacity" values="0;1;0" dur="1s" begin="0.3s" repeatCount="indefinite"/></circle>
+          <circle cx="15" cy="60" r="1.5" fill="#3B82F6"><animate attributeName="opacity" values="0;1;0" dur="1s" begin="0.6s" repeatCount="indefinite"/></circle>
+        </svg>
+        <div class="pet-mood" style="color:#f59e0b">休息一下</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

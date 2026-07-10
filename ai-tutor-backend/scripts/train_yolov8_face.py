@@ -32,9 +32,9 @@ def main():
     model = YOLO("yolov8n.pt")
     results = model.train(
         data=str(DATA_YAML),
-        epochs=80,
+        epochs=50,
         imgsz=640,
-        batch=8,
+        batch=4,
         project=str(OUTPUT_DIR),
         name="face-study",
         patience=20,
